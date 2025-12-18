@@ -1,0 +1,8 @@
+<span> @Message</span>
+
+@code {
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    private string Message => IsSaving ? "Saving..." : "Save";
+}

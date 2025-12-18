@@ -1,6 +1,31 @@
+using Microsoft.AspNetCore.Components;
 using RepReady.Components;
+using RepReady.Configuration;
+using RepReady.Controllers.MinimalAPI;
+using RepReady.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.WebHost.UseStaticWebAssets();
+}
+
+// Configure Supabase settings
+builder.Services.Configure<SupabaseSettings>(
+    builder.Configuration.GetSection("Supabase"));
+// Register Supabase service
+builder.Services.AddSingleton<SupabaseService>();
+
+// Register OpenAPI
+builder.Services.AddOpenApi();
+
+// Add HttpClient for API calls using IHttpClientFactory
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080");
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -8,18 +33,28 @@ builder.Services.AddRazorComponents()
 
 var app = builder.Build();
 
+// Initialize Supabase client
+var supabaseService = app.Services.GetRequiredService<SupabaseService>();
+await supabaseService.InitializeAsync();
+
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
     app.UseHttpsRedirection();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
+
+app.UseExceptionHandler("/Error", createScopeForErrors: true);
+// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+app.UseHsts();
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
 app.UseAntiforgery();
+
+app.UseAuthorization();
+app.MapUserEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

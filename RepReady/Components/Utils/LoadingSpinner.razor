@@ -1,0 +1,33 @@
+@if (Show)
+{
+    <div class="@WrapperClass">
+        <div class="spinner-border @SizeClass" role="status">
+            <span class="visually-hidden">@Message</span>
+        </div>
+        @if (!string.IsNullOrEmpty(Message) && ShowMessage)
+        {
+            <div class="mt-2">@Message</div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; } = true;
+
+    [Parameter]
+    public string Message { get; set; } = "Loading...";
+    
+    [Parameter]
+    public bool ShowMessage { get; set; } = false;
+
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    [Parameter]
+    public bool CenterOnPage { get; set; } = false;
+
+    private string SizeClass => Size == "sm" ? "spinner-border-sm" : "";
+    
+    private string WrapperClass => CenterOnPage ? "text-center my-3" : "";
+}
