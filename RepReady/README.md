@@ -5,6 +5,7 @@ __Users__
 - lastName: string
 - email: string
 - createdAt: DateTime
+- updatedAt: DateTime
 
 __ExerciseCategories__
 - id: int
@@ -38,10 +39,10 @@ __WorkoutSessions__
 - sessionDate: DateTime
 - status: string
 - createdAt: DateTime
-
-_(Composite Index for __WorkoutSessions__)_
-- userId
-- sessionDate
+>_(Composite Index for __WorkoutSessions__)_
+> - userId
+> - sessionDate
+> - ```CREATE INDEX user_id_session_date_index ON workout_sessions (user_id, session_start);```
 
 __SessionSets__
 - id:  int

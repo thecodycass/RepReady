@@ -1,0 +1,69 @@
+@page "/user/new"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+@inject ILogger<User> Logger
+
+<PageTitle>Create New User</PageTitle>
+
+<h1>Create New User</h1>
+
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+<UserForm Model="@_newUser" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel" />
+
+@code {
+    private UserFormModel _newUser = new();
+    private bool _isSubmitting = false;
+    private string _errorMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        _isSubmitting = true;
+        _errorMessage = string.Empty;
+
+        try
+        {
+            var user = new
+            {
+                firstName = _newUser.FirstName,
+                lastName = _newUser.LastName,
+                email = _newUser.Email,
+                createdAt = DateTime.UtcNow,
+                updatedAt = DateTime.UtcNow,
+                role = _newUser.Role,
+            };
+
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.PostAsJsonAsync("/v1/users/", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/user");
+            }
+            else
+            {
+                _errorMessage = $"Failed to create user. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error creating user: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/user");
+    }
+}

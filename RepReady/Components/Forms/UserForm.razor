@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@Model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <InputText id="firstName" class="form-control" @bind-Value="Model.FirstName" />
+                <ValidationMessage For="@(() => Model.FirstName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <InputText id="lastName" class="form-control" @bind-Value="Model.LastName" />
+                <ValidationMessage For="@(() => Model.LastName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
+                <ValidationMessage For="@(() => Model.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                    <Saving IsSaving="@IsSubmitting"></Saving>
+                </button>
+                <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public UserFormModel Model { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public bool IsSubmitting { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnCancel { get; set; }
+}

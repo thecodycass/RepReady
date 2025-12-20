@@ -15,6 +15,10 @@ public class UserDto
     public string Email { get; set; } = string.Empty;
     
     public DateTime CreatedAt { get; set; }
+    
+    public DateTime UpdatedAt { get; set; }
+    
+    public string Role { get; set; } = "user";
 }
 
 // Extension methods for User model mapping
@@ -29,7 +33,9 @@ public static class UserExtensions
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            Role = user.Role ?? "user"
         };
     }
     
