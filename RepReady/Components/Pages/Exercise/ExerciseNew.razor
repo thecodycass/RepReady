@@ -1,12 +1,12 @@
-@page "/user/new"
+@page "/exercise/new"
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpFactory
 @inject NavigationManager Navigation
-@inject ILogger<User> Logger
+@inject ILogger<Exercise> Logger
 
-<PageTitle>Create New User</PageTitle>
+<PageTitle>Create New Exercise</PageTitle>
 
-<h1>Create New User</h1>
+<h1>Create New Exercise</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -15,13 +15,13 @@
     </div>
 }
 
-<UserForm Model="@_newUser" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel" />
+<ExerciseForm Model="@_newExercise" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel"/>
 
 @code {
-    private UserFormModel _newUser = new();
+    private ExerciseFormModel _newExercise = new();
     private bool _isSubmitting = false;
     private string _errorMessage = string.Empty;
-
+    
     private async Task HandleSubmit()
     {
         _isSubmitting = true;
@@ -29,31 +29,30 @@
 
         try
         {
-            var user = new
+            var exercise = new
             {
-                firstName = _newUser.FirstName,
-                lastName = _newUser.LastName,
-                email = _newUser.Email,
+                name = _newExercise.Name,
+                category = _newExercise.Category,
+                bodyRegion = _newExercise.BodyRegion,
                 createdAt = DateTime.UtcNow,
                 updatedAt = DateTime.UtcNow,
-                role = _newUser.Role,
             };
 
             using var http = HttpFactory.CreateClient("ApiClient");
-            var response = await http.PostAsJsonAsync("/v1/users/", user);
+            var response = await http.PostAsJsonAsync("/v1/exercises/", exercise);
 
             if (response.IsSuccessStatusCode)
             {
-                Navigation.NavigateTo("/user");
+                Navigation.NavigateTo("/exercise");
             }
             else
             {
-                _errorMessage = $"Failed to create user. Status: {response.StatusCode}";
+                _errorMessage = $"Failed to create exercise. Status: {response.StatusCode}";
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Error creating user: {ex.Message}";
+            _errorMessage = $"Error creating exercise: {ex.Message}";
         }
         finally
         {
@@ -63,6 +62,6 @@
 
     private void Cancel()
     {
-        Navigation.NavigateTo("/user");
+        Navigation.NavigateTo("/exercise");
     }
 }

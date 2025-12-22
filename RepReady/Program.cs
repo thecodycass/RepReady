@@ -24,7 +24,7 @@ builder.Services.AddOpenApi();
 // Add HttpClient for API calls using IHttpClientFactory
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080");
+    client.BaseAddress = new Uri("http://localhost:8080"); // Docker Compose Environment
 });
 
 // Add services to the container.
@@ -54,7 +54,10 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseAntiforgery();
 
 app.UseAuthorization();
+
+// API Endpoints
 app.MapUserEndpoints();
+app.MapExerciseEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

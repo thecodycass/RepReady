@@ -1,0 +1,71 @@
+@page "/exercises/{region}"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject ILogger<ExerciseByRegion> Logger
+@inject NavigationManager Navigation
+
+<PageTitle>@StringHelper.Capitalize(@Region) Exercises</PageTitle>
+<h1>@StringHelper.Capitalize(@Region) Exercises</h1>
+
+@if (_isLoading)
+{
+    <LoadingSpinner />
+}
+else if (_exercises == null || !_exercises.Any())
+{
+    <p>No exercises found for @Region.</p>
+}
+else
+{
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        @foreach (var exercise in _exercises)
+        {
+            <div class="card position-relative">
+                <div class="card-body">
+                    <h5 class="card-title">@exercise.Name</h5>
+                    <p class="card-text">
+                        <strong>Category:</strong> @exercise.Category<br/>
+                        <strong>Body Region:</strong> @exercise.BodyRegion
+                    </p>
+                </div>
+                <button
+                    class="btn btn-sm position-absolute top-0 end-0 m-2"
+                    @onclick="() => Edit(exercise.Id)"
+                    style="background: none; border: none; font-size: 1.2em; line-height: 1;"
+                    title="Edit exercise">
+                    ⋯
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Region { get; set; } = string.Empty;
+
+    private IEnumerable<ExerciseDto>? _exercises;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            _exercises = await http.GetFromJsonAsync<IEnumerable<ExerciseDto>>($"/v1/exercises/getExerciseByBodyRegion/{Region}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error fetching exercises for region {Region}", Region);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Edit(int id)
+    {
+        Navigation.NavigateTo($"/exercise/edit/{id}");
+    }
+}

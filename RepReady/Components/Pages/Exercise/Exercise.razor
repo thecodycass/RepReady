@@ -1,0 +1,29 @@
+@page "/exercise"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpFactory
+@inject ILogger<Exercise> Logger
+
+<PageTitle>Exercises</PageTitle>
+<h1>Exercises</h1>
+
+<a href="/exercise/new" type="button" class="btn btn-primary align-items-end">Create New Exercise</a>
+<br/>
+<br/>
+
+<h3>Click To View Exercises </h3>
+
+<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem;">
+    @foreach (var exercise in @Globals.BODY_REGIONS)
+    {
+        <a href="/exercises/@exercise" class="text-decoration-none">
+            <div class="card h-100">
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <h5 class="card-title">@exercise.ToUpper()</h5>
+                </div>
+            </div>
+        </a>
+    }
+</div>
+
+@code {}

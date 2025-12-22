@@ -1,0 +1,119 @@
+@page "/exercise/edit/{id:int}"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+@inject ILogger<ExerciseEdit> Logger
+
+<PageTitle>Edit Exercise</PageTitle>
+<h1>Edit Exercise</h1>
+
+@if (_isLoading)
+{
+    <LoadingSpinner />
+}
+else if (_errorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_exerciseModel != null)
+{
+    <ExerciseForm Model="_exerciseModel" OnValidSubmit="HandleSubmit" IsSubmitting="_isSubmitting" OnCancel="Cancel" />
+}
+else
+{
+    <p>Exercise not found.</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ExerciseFormModel? _exerciseModel;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var exercise = await http.GetFromJsonAsync<ExerciseDto>($"/v1/exercises/{Id}");
+
+            if (exercise != null)
+            {
+                _exerciseModel = new ExerciseFormModel
+                {
+                    Name = exercise.Name,
+                    Category = exercise.Category,
+                    BodyRegion = exercise.BodyRegion,
+                    CreatedAt = exercise.CreatedAt,
+                    UpdatedAt = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                _errorMessage = "Exercise not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading exercise: {ex.Message}";
+            Logger.LogError(ex, "Error loading exercise {Id}", Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (_exerciseModel == null) return;
+
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var exerciseToUpdate = new
+            {
+                name = _exerciseModel.Name,
+                category = _exerciseModel.Category,
+                bodyRegion = _exerciseModel.BodyRegion,
+                createdAt = _exerciseModel.CreatedAt,
+                updatedAt = _exerciseModel.UpdatedAt
+            };
+
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.PutAsJsonAsync($"/v1/exercises/{Id}", exerciseToUpdate);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Navigate back to the region page for this exercise
+                Navigation.NavigateTo($"/exercises/{_exerciseModel.BodyRegion}");
+            }
+            else
+            {
+                _errorMessage = $"Failed to update exercise. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error updating exercise: {ex.Message}";
+            Logger.LogError(ex, "Error updating exercise {Id}", Id);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        // Navigate back to exercises main page if we don't know the region
+        Navigation.NavigateTo("/exercise");
+    }
+}

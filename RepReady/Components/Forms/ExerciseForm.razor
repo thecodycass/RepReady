@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@Model" OnValidSubmit="@OnValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" class="form-control" @bind-Value="Model.Name" />
+                <ValidationMessage For="@(() => Model.Name)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <InputSelect id="category" class="form-control form-select" @bind-Value="Model.Category">
+                    @foreach (var category in @Globals.EXERCISE_CATEGORIES)
+                    {
+                        <option value="@category">@category.ToUpper()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Model.Category)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="body_region" class="form-label">Body Region</label>
+                <InputSelect id="body_region" class="form-control form-select" @bind-Value="Model.BodyRegion">
+                    @foreach (var region in Globals.BODY_REGIONS)
+                    {
+                        <option value="@region">@region.ToUpper()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Model.BodyRegion)" />
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                    <Saving IsSaving="@IsSubmitting"></Saving>
+                </button>
+                <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ExerciseFormModel Model { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public bool IsSubmitting { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnCancel { get; set; }
+}

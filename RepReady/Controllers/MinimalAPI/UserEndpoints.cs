@@ -20,7 +20,7 @@ public static class UserEndpoints
         endpoints.MapDelete("/{id}", Delete);
     }
     
-    private static async Task<List<UserDto>> GetAll(SupabaseService db)
+    private static async Task<IEnumerable<UserDto>> GetAll(SupabaseService db)
     {
         var response = await db.Client.From<User>().Get();
         return response.Models.ToDto();

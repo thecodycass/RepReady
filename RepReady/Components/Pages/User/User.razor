@@ -73,7 +73,6 @@
 
     private async Task LoadUser()
     {
-        Logger.LogDebug("THIS IS A TEST");
         Logger.LogInformation("LoadUser started for user ID {UserId}", UserId);
         _isLoading = true;
         _errorMessage = string.Empty;
@@ -167,7 +166,6 @@
 
             if (response.IsSuccessStatusCode)
             {
-                Logger.LogInformation("User updated successfully");
                 _successMessage = "User updated successfully!";
                 _isEditing = false;
                 await LoadUser();
@@ -186,7 +184,6 @@
         finally
         {
             _isSubmitting = false;
-            Logger.LogInformation("HandleUpdate completed, isSubmitting = {IsSubmitting}", _isSubmitting);
         }
     }
 }

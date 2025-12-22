@@ -40,7 +40,7 @@ public static class UserExtensions
     }
     
     // Converts a list of User entities to a list of UserDto objects
-    public static List<UserDto> ToDto(this List<User> users)
+    public static IEnumerable<UserDto> ToDto(this IEnumerable<User> users)
     {
         return users.Select(u => u.ToDto()).ToList();
     }
