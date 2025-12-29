@@ -7,7 +7,6 @@
 <PageTitle>@_title</PageTitle>
 <HeaderRowWithButton HeaderText="@_title" Route="/exercise" ButtonText="Back to exercises"/>
 
-
 @if (_isLoading)
 {
     <LoadingSpinner />
@@ -77,6 +76,7 @@ else
     
     private void AddExercises()
     {
-        Navigation.NavigateTo($"/exercise/new/");
+        var url = $"/exercise/new?bodyRegion={Uri.EscapeDataString(Region)}";
+        Navigation.NavigateTo(url);
     }
 }

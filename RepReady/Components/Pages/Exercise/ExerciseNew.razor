@@ -17,12 +17,25 @@
 <ExerciseForm Model="@_newExercise" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel"/>
 
 @code {
-    [Parameter]
+    [SupplyParameterFromQuery(Name = "bodyRegion")]
     public string? BodyRegion { get; set; }
-    
+
     private ExerciseFormModel _newExercise = new();
     private bool _isSubmitting = false;
     private string _errorMessage = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        // Prefill if coming from a region-specific page.
+        if (!string.IsNullOrWhiteSpace(BodyRegion) && string.IsNullOrWhiteSpace(_newExercise.BodyRegion))
+        {
+            // Only set if it's a known region; otherwise ignore.
+            if (Globals.BodyRegions.Contains(BodyRegion, StringComparer.OrdinalIgnoreCase))
+            {
+                _newExercise.BodyRegion = BodyRegion;
+            }
+        }
+    }
     
     private async Task HandleSubmit()
     {
