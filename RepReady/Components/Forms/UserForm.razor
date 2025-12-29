@@ -1,40 +1,57 @@
-<div class="row">
-    <div class="col-md-6">
-        <EditForm Model="@Model" OnValidSubmit="@OnValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+<div class="card bg-shadow-gray">
+    <div class="card-body p-3 p-md-4">
+        <div class="col-md-8 col-lg-6">
+            <EditForm id="userForm" Model="@Model" OnValidSubmit="@OnValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-            <div class="mb-3">
-                <label for="firstName" class="form-label">First Name</label>
-                <InputText id="firstName" class="form-control" @bind-Value="Model.FirstName" />
-                <ValidationMessage For="@(() => Model.FirstName)" />
-            </div>
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-4">
+                        <label for="firstName" class="col-form-label">First Name</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <InputText id="firstName" class="form-control" @bind-Value="Model.FirstName" @oninput="OnInput" />
+                        <ValidationMessage For="@(() => Model.FirstName)" />
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label for="lastName" class="form-label">Last Name</label>
-                <InputText id="lastName" class="form-control" @bind-Value="Model.LastName" />
-                <ValidationMessage For="@(() => Model.LastName)" />
-            </div>
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-4">
+                        <label for="lastName" class="col-form-label">Last Name</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <InputText id="lastName" class="form-control" @bind-Value="Model.LastName" @oninput="OnInput" />
+                        <ValidationMessage For="@(() => Model.LastName)" />
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
-                <ValidationMessage For="@(() => Model.Email)" />
-            </div>
-            
-            <div class="mb-3">
-                <label for="bodyWeight" class="form-label">Body Weight</label>
-                <InputNumber id="bodyWeight" type="number" class="form-control" @bind-Value="Model.BodyWeight" />
-                <ValidationMessage For="@(() => Model.BodyWeight)" />
-            </div>
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-4">
+                        <label for="email" class="col-form-label">Email</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" @oninput="OnInput" />
+                        <ValidationMessage For="@(() => Model.Email)" />
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
-                    <Saving IsSaving="@IsSubmitting"></Saving>
-                </button>
-                <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
-            </div>
-        </EditForm>
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-4">
+                        <label for="bodyWeight" class="col-form-label">Body Weight</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <InputNumber id="bodyWeight" type="number" class="form-control" @bind-Value="Model.BodyWeight" @oninput="OnInput" />
+                        <ValidationMessage For="@(() => Model.BodyWeight)" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent d-flex justify-content-end p-3 p-md-4">
+        <button type="submit" class="btn btn-primary" disabled="@(IsDisabled)" form="userForm">
+            <Saving IsSaving="@IsSubmitting"></Saving>
+        </button>
     </div>
 </div>
 
@@ -44,10 +61,13 @@
 
     [Parameter, EditorRequired]
     public EventCallback OnValidSubmit { get; set; }
+    
+    [Parameter]
+    public EventCallback OnInput { get; set; }
 
     [Parameter]
     public bool IsSubmitting { get; set; }
 
-    [Parameter, EditorRequired]
-    public EventCallback OnCancel { get; set; }
+    [Parameter]
+    public bool IsDisabled { get; set; }
 }

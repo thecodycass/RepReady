@@ -15,7 +15,7 @@
     </div>
 }
 
-<UserForm Model="@_newUser" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel" />
+<UserForm Model="@_newUser" IsDisabled="false" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" />
 
 @code {
     private UserFormModel _newUser = new();
@@ -62,8 +62,4 @@
         }
     }
 
-    private void Cancel()
-    {
-        Navigation.NavigateTo("/user");
-    }
 }
