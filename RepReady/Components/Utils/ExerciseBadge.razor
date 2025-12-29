@@ -1,0 +1,22 @@
+<span class="badge text-sm-center @BadgeColor()">@Value?.ToUpper()</span>
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    private string? BadgeColor() => Value?.ToLower() switch
+    {
+        "push" or "chest" => "text-bg-danger", // Red
+        
+        "pull" or "triceps" or "biceps" or "forearms" => "text-bg-primary", // Blue
+        
+        "legs" or "glutes" or "hamstrings" or "quads" or "calves" => "text-bg-success", // Green
+        
+        "cardio" or "shoulders" or "traps" or "neck" => "text-bg-warning", // Yellow
+        
+        "abs" or "obliques" => "text-bg-light", // Light Gray
+        
+        "back" => "badge-bg-purple", // Purple
+        
+        _ => "text-bg-dark" // Default
+    };
+}

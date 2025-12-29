@@ -1,0 +1,57 @@
+@using RepReady.DTOs
+
+<h3>Find Exercises</h3>
+
+<div class="mb-3">
+    <input type="text"
+           class="form-control"
+           placeholder="Search exercises..."
+           value="@SearchTerm"
+           @oninput="OnSearchTermInput" />
+</div>
+
+@if (FilteredExercises.Any() && SearchTerm.Length > 0)
+{
+    <div class="mb-4 bg-shadow-gray">
+        @foreach (var exercise in FilteredExercises.OrderBy(e => e.Name))
+        {
+            <div class="form-check mb-2">
+                <input class="form-check-input"
+                       type="checkbox"
+                       checked="@SelectedExercises[exercise.Id]"
+                       @onchange="(e) => OnSelectionChanged.InvokeAsync((exercise.Id, e))"
+                       id="exercise-@exercise.Id" />
+                <label class="form-check-label" for="exercise-@exercise.Id">
+                    <ExerciseBadge Value="@exercise.BodyRegion"/>
+                    @exercise.Name
+                </label>
+            </div>
+        }
+    </div>
+}
+else if (!string.IsNullOrEmpty(SearchTerm))
+{
+    <p class="text-muted">No exercises found matching "@SearchTerm".</p>
+}
+
+@code {
+    [Parameter, EditorRequired] public IEnumerable<ExerciseDto> Exercises { get; set; } = Enumerable.Empty<ExerciseDto>();
+    [Parameter, EditorRequired] public Dictionary<int, bool> SelectedExercises { get; set; } = new();
+
+    [Parameter] public string SearchTerm { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> SearchTermChanged { get; set; }
+
+    // Using a tuple to keep wiring simple from parent.
+    [Parameter, EditorRequired] public EventCallback<(int exerciseId, ChangeEventArgs e)> OnSelectionChanged { get; set; }
+
+    private IEnumerable<ExerciseDto> FilteredExercises => Exercises.Where(e =>
+        string.IsNullOrEmpty(SearchTerm) ||
+        e.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private async Task OnSearchTermInput(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        SearchTerm = value;
+        await SearchTermChanged.InvokeAsync(value);
+    }
+}

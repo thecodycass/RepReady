@@ -1,0 +1,96 @@
+@page "/workout-templates"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpFactory
+@inject ILogger<WorkoutTemplates> Logger
+@inject RepReady.Services.WorkoutTemplateSelectionState SelectionState
+
+<PageTitle>Workout Templates</PageTitle>
+<HeaderRowWithButton HeaderText="Workout Templates" ButtonText="New Workout Template" Route="workout-templates/new"/>
+<br/>
+<br/>
+
+@if (_isLoading)
+{
+    <LoadingSpinner />
+}
+else if (_workoutTemplates == null || !_workoutTemplates.Any())
+{
+    <p>No workout templates found.</p>
+}
+else
+{
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        @foreach (var template in _workoutTemplates)
+        {
+            <div class="card bg-shadow-gray position-relative">
+                <div class="card-body" style="cursor: pointer;" @onclick="() => NavigateToTemplate(template)">
+                    <h5 class="card-title">@template.Name</h5>
+                    <p class="card-text">@template.Description</p>
+                </div>
+                <button
+                    class="btn btn-sm position-absolute top-0 end-0 m-2"
+                    @onclick="() => AddExercises(template.Id)"
+                    style="background: none; border: none; font-size: 1.2em; line-height: 1;"
+                    title="Edit exercise">
+                    ⋯
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private IEnumerable<WorkoutTemplateDto>? _workoutTemplates;
+    private bool _isLoading = true;
+    private const int UserId = 1; // TODO: Change once I get a signin configured
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWorkoutTemplates();
+    }
+
+    private async Task LoadWorkoutTemplates()
+    {
+        Logger.LogInformation("LoadWorkoutTemplates started for user ID {UserId}", UserId);
+        _isLoading = true;
+
+        try
+        {
+            var requestUrl = $"/v1/workout_templates/getWorkoutTemplatesByUserId/{UserId}";
+            Logger.LogInformation("Making GET request to {Url}", requestUrl);
+
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.GetAsync(requestUrl);
+            Logger.LogInformation("Received response with status code {StatusCode}", response.StatusCode);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _workoutTemplates = await response.Content.ReadFromJsonAsync<IEnumerable<WorkoutTemplateDto>>();
+            }
+            else
+            {
+                Logger.LogError("Failed to load workout templates. Status: {StatusCode}", response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading workout templates");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void AddExercises(int templateId)
+    {
+        Navigation.NavigateTo($"/workout-templates/{templateId}/add-exercises");
+    }
+
+    private void NavigateToTemplate(WorkoutTemplateDto template)
+    {
+        SelectionState.Set(template);
+        Navigation.NavigateTo($"/workout-template/{template.Id}");
+    }
+}

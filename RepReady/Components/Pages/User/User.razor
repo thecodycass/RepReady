@@ -27,7 +27,7 @@
     @if (!_isEditing)
     {
         <!-- Display Mode -->
-        <div class="card">
+        <div class="card bg-shadow-gray">
             <div class="card-body">
                 <h5 class="card-title">@_user.FirstName @_user.LastName</h5>
                 <div class="mb-2">
@@ -36,10 +36,13 @@
                 <div class="mb-2">
                     <strong>Created:</strong> @_user.CreatedAt.ToString("d")
                 </div>
-                <div class="mt-3">
-                    <button class="btn btn-primary" @onclick="EnterEditMode">Edit</button>
+                <div class="mb-2">
+                    <strong>Body Weight:</strong> @_user.BodyWeight.ToString("f1")
                 </div>
             </div>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-primary" @onclick="EnterEditMode">Edit</button>
         </div>
     }
     else
@@ -124,7 +127,8 @@
             {
                 FirstName = _user.FirstName,
                 LastName = _user.LastName,
-                Email = _user.Email
+                Email = _user.Email,
+                BodyWeight = _user.BodyWeight,
             };
             _isEditing = true;
             _successMessage = string.Empty;
@@ -157,6 +161,7 @@
                 createdAt = _editForm.CreatedAt,
                 updatedAt = DateTime.UtcNow,
                 role = _editForm.Role,
+                bodyWeight = _editForm.BodyWeight,
             };
             Logger.LogInformation("Making PUT request to /v1/users/{UserId} with data: {@UpdatedUser}", UserId, updatedUser);
             

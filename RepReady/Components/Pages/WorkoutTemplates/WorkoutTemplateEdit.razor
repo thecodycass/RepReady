@@ -1,0 +1,122 @@
+@page "/workout-templates/edit/{id:int}"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+@inject ILogger<WorkoutTemplateEdit> Logger
+
+<PageTitle>Edit Workout Template</PageTitle>
+<h1>Edit Workout Template</h1>
+
+@if (_isLoading)
+{
+    <LoadingSpinner />
+}
+else if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+else if (_workoutTemplateFormModel != null)
+{
+    <WorkoutTemplateForm Model="_workoutTemplateFormModel" OnValidSubmit="HandleSubmit" IsSubmitting="_isSubmitting" OnCancel="Cancel" />
+}
+else
+{
+    <p>Workout Template not found.</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private WorkoutTemplateFormModel? _workoutTemplateFormModel;
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private string _errorMessage = string.Empty;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var template = await http.GetFromJsonAsync<WorkoutTemplateDto>($"/v1/workout_templates/{Id}");
+
+            if (template != null)
+            {
+                _workoutTemplateFormModel = new WorkoutTemplateFormModel()
+                {
+                    Name = template.Name,
+                    Description = template.Description,
+                    UserId = template.UserId,
+                    CreatedAt = template.CreatedAt,
+                    UpdatedAt = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                _errorMessage = "Workout Template not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading workout template: {ex.Message}";
+            Logger.LogError(ex, "Error loading workout template {Id}", Id);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    
+    private async Task HandleSubmit()
+    {
+        if (_workoutTemplateFormModel == null) return;
+
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var workoutTemplateToUpdate = new
+            {
+                name = _workoutTemplateFormModel.Name,
+                description = _workoutTemplateFormModel.Description,
+                userId = _workoutTemplateFormModel.UserId,
+                createdAt = _workoutTemplateFormModel.CreatedAt,
+                updatedAt = _workoutTemplateFormModel.UpdatedAt
+            };
+
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.PutAsJsonAsync($"/v1/workout_templates/{Id}", workoutTemplateToUpdate);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Navigate back to add-exercises
+                Navigation.NavigateTo($"/workout-templates/{Id}/add-exercises");
+            }
+            else
+            {
+                _errorMessage = $"Failed to update workout template. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error updating workout template: {ex.Message}";
+            Logger.LogError(ex, "Error updating workout template {Id}", Id);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+    
+    private void Cancel()
+    {
+        // Navigate back to work out templates main page if we don't know the I.d.
+        if (_workoutTemplateFormModel == null) Navigation.NavigateTo("/workout-templates");
+        
+        // Navigate back to add-exercises
+        Navigation.NavigateTo($"/workout-templates/{Id}/add-exercises");
+    }
+}

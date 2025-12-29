@@ -1,0 +1,12 @@
+<div class="d-flex justify-content-between">
+    <div><h1>@HeaderText</h1></div>
+    <div>
+        <a href="@Route" type="button" class="btn btn-primary">@ButtonText</a>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string HeaderText { get; set; } = string.Empty;
+    [Parameter] public string Route { get; set; } = "/";
+    [Parameter] public string ButtonText { get; set; } = "Back";
+}

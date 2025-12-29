@@ -4,8 +4,9 @@
 @inject ILogger<ExerciseByRegion> Logger
 @inject NavigationManager Navigation
 
-<PageTitle>@StringHelper.Capitalize(@Region) Exercises</PageTitle>
-<h1>@StringHelper.Capitalize(@Region) Exercises</h1>
+<PageTitle>@_title</PageTitle>
+<HeaderRowWithButton HeaderText="@_title" Route="/exercise" ButtonText="Back to exercises"/>
+
 
 @if (_isLoading)
 {
@@ -20,7 +21,7 @@ else
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
         @foreach (var exercise in _exercises)
         {
-            <div class="card position-relative">
+            <div class="card bg-shadow-gray position-relative">
                 <div class="card-body">
                     <h5 class="card-title">@exercise.Name</h5>
                     <p class="card-text">
@@ -38,21 +39,26 @@ else
             </div>
         }
     </div>
+    <br/>
 }
+<button @onclick="AddExercises" type="button" class="btn btn-primary">Add Exercise</button>
 
 @code {
     [Parameter]
     public string Region { get; set; } = string.Empty;
-
+    
     private IEnumerable<ExerciseDto>? _exercises;
     private bool _isLoading = true;
-
+    private string _title = string.Empty;
+    
     protected override async Task OnInitializedAsync()
     {
         try
         {
             using var http = HttpFactory.CreateClient("ApiClient");
             _exercises = await http.GetFromJsonAsync<IEnumerable<ExerciseDto>>($"/v1/exercises/getExerciseByBodyRegion/{Region}");
+            
+            _title = $"{StringHelper.Capitalize(Region)} Exercises";
         }
         catch (Exception ex)
         {
@@ -67,5 +73,10 @@ else
     private void Edit(int id)
     {
         Navigation.NavigateTo($"/exercise/edit/{id}");
+    }
+    
+    private void AddExercises()
+    {
+        Navigation.NavigateTo($"/exercise/new/");
     }
 }

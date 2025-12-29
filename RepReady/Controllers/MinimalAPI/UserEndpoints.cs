@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using RepReady.Models;
+using RepReady.Models.User;
 using RepReady.DTOs;
 using RepReady.Services;
 

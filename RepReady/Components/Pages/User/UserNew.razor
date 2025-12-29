@@ -37,6 +37,7 @@
                 createdAt = DateTime.UtcNow,
                 updatedAt = DateTime.UtcNow,
                 role = _newUser.Role,
+                bodyWeight = _newUser.BodyWeight,
             };
 
             using var http = HttpFactory.CreateClient("ApiClient");

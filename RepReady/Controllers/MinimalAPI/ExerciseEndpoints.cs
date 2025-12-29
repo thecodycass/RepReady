@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using RepReady.Models;
 using RepReady.DTOs;
+using RepReady.Models.Exercise;
 using RepReady.Services;
+using Supabase.Postgrest;
 
 namespace RepReady.Controllers.MinimalAPI;
 
@@ -37,14 +38,20 @@ public static class ExerciseEndpoints
     private static async Task<IEnumerable<ExerciseDto>> GetExerciseByBodyRegion(SupabaseService db, string bodyRegion)
     {
         bodyRegion = bodyRegion.ToLower();
-        var response = await db.Client.From<Exercise>().Where(e => e.BodyRegion == bodyRegion).Get();
+        var response = await db.Client.From<Exercise>()
+            .Where(e => e.BodyRegion == bodyRegion)
+            .Order(e => e.Name, Constants.Ordering.Ascending)
+            .Get();
         return response.Models.ToDto();
     }
 
     private static async Task<IEnumerable<ExerciseDto>> GetExerciseByCategory(SupabaseService db, string category)
     {
         category = category.ToLower();
-        var response = await db.Client.From<Exercise>().Where(e => e.Category == category).Get();
+        var response = await db.Client.From<Exercise>()
+            .Where(e => e.Category == category)
+            .Order(e => e.BodyRegion, Constants.Ordering.Ascending)
+            .Get();
         return response.Models.ToDto();
     }
     

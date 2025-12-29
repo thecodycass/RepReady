@@ -1,0 +1,127 @@
+@using RepReady.DTOs
+@using RepReady.Models.WorkoutTemplate
+
+<h3>Selected Exercises</h3>
+
+@if (!SelectedExerciseStates.Any(kv => kv.Value))
+{
+    <p class="text-muted">No exercises selected yet.</p>
+    return;
+}
+
+<form @onsubmit="OnSubmit">
+    <div class="row">
+        @foreach (var exerciseId in SelectedExerciseStates
+            .Where(kv => kv.Value)
+            .Select(kv => kv.Key)
+            .OrderBy(id => ExerciseConfigs[id].SortOrder)
+            .ThenBy(id => id))
+        {
+            var exercise = Exercises.FirstOrDefault(e => e.Id == exerciseId);
+            if (exercise != null)
+            {
+                <div class="col-12 mb-3">
+                    <div class="card bg-shadow-gray">
+                        <div class="card-body position-relative">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                    title="Remove exercise"
+                                    @onclick="() => OnRemoveExercise.InvokeAsync(exercise.Id)">
+                                Remove
+                            </button>
+
+                            <h6 class="card-title">@exercise.Name</h6>
+                            <ExerciseBadge Value="@exercise.BodyRegion"/>
+                            <br/>
+                            <br/>
+                            <div class="row g-2">
+                                <div class="col-3">
+                                    <label class="form-label small">Order</label>
+                                    <input type="number"
+                                           class="form-control form-control-sm"
+                                           value="@ExerciseConfigs[exercise.Id].SortOrder"
+                                           @onchange="(e) => OnSortOrderChanged.InvokeAsync((exercise.Id, e))"
+                                           min="1"/>
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label small">Sets</label>
+                                    <input type="number"
+                                           class="form-control form-control-sm"
+                                           @bind="ExerciseConfigs[exercise.Id].DefaultSets"
+                                           min="1"/>
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label small">Reps</label>
+                                    <input type="number"
+                                           class="form-control form-control-sm"
+                                           @bind="ExerciseConfigs[exercise.Id].DefaultReps"
+                                           min="1"/>
+                                </div>
+                                <div class="col-3">
+                                    <label class="form-label small">Starting Weight</label>
+                                    <input type="number"
+                                           class="form-control form-control-sm"
+                                           @bind="ExerciseConfigs[exercise.Id].Weight"
+                                           min="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @SuccessMessage
+        </div>
+    }
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+            <Saving IsSaving="@IsSubmitting"></Saving>
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
+    </div>
+</form>
+
+@code {
+    [Parameter, EditorRequired] 
+    public IEnumerable<ExerciseDto> Exercises { get; set; } = Enumerable.Empty<ExerciseDto>();
+    
+    [Parameter, EditorRequired] 
+    public Dictionary<int, bool> SelectedExerciseStates { get; set; } = new();
+    
+    [Parameter, EditorRequired] 
+    public Dictionary<int, ExerciseConfig> ExerciseConfigs { get; set; } = new();
+    
+    [Parameter] 
+    public bool IsSubmitting { get; set; }
+    
+    [Parameter] 
+    public string ErrorMessage { get; set; } = string.Empty;
+    
+    [Parameter] 
+    public string SuccessMessage { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] 
+    public EventCallback OnSubmit { get; set; }
+    
+    [Parameter, EditorRequired] 
+    public EventCallback OnCancel { get; set; }
+    
+    [Parameter, EditorRequired] 
+    public EventCallback<(int exerciseId, ChangeEventArgs e)> OnSortOrderChanged { get; set; }
+    
+    [Parameter, EditorRequired] 
+    public EventCallback<int> OnRemoveExercise { get; set; }
+}

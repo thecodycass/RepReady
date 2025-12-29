@@ -1,0 +1,29 @@
+<div class="col-12 mb-3">
+    <div class="card bg-shadow-gray">
+        <div class="card-body position-relative">
+            <form class="row g-3">
+                <div class="col-md-12">
+                    <h6 class="card-title">@ExerciseTemplate?.Exercise?.Name</h6>
+                    <ExerciseBadge Value="@ExerciseTemplate?.Exercise?.BodyRegion"/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Sets</label>
+                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.DefaultSets">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Reps</label>
+                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.DefaultReps">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Starting Weight</label>
+                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.Weight">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ExerciseTemplateDto? ExerciseTemplate { get; set; }
+}

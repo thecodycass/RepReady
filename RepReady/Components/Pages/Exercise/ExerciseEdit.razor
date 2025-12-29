@@ -114,6 +114,9 @@ else
     private void Cancel()
     {
         // Navigate back to exercises main page if we don't know the region
-        Navigation.NavigateTo("/exercise");
+        if (_exerciseModel == null) Navigation.NavigateTo("/exercise");
+        
+        // Navigate back to the region page for this exercise
+        Navigation.NavigateTo($"/exercises/{_exerciseModel?.BodyRegion}");
     }
 }

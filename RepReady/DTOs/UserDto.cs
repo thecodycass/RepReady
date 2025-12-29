@@ -1,4 +1,4 @@
-using RepReady.Models;
+using RepReady.Models.User;
 namespace RepReady.DTOs;
 /**
  * Data Transfer Object for User entity
@@ -7,18 +7,13 @@ namespace RepReady.DTOs;
 public class UserDto
 {
     public int Id { get; set; }
-    
     public string FirstName { get; set; } = string.Empty;
-    
     public string LastName { get; set; } = string.Empty;
-    
     public string Email { get; set; } = string.Empty;
-    
     public DateTime CreatedAt { get; set; }
-    
     public DateTime UpdatedAt { get; set; }
-    
     public string Role { get; set; } = "user";
+    public float BodyWeight { get; set; }
 }
 
 // Extension methods for User model mapping
@@ -35,7 +30,8 @@ public static class UserExtensions
             Email = user.Email,
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
-            Role = user.Role ?? "user"
+            Role = user.Role ?? "user",
+            BodyWeight = user.BodyWeight,
         };
     }
     

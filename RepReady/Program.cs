@@ -31,6 +31,9 @@ builder.Services.AddHttpClient("ApiClient", client =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// In-memory state containers
+builder.Services.AddScoped<WorkoutTemplateSelectionState>();
+
 var app = builder.Build();
 
 // Initialize Supabase client
@@ -58,6 +61,8 @@ app.UseAuthorization();
 // API Endpoints
 app.MapUserEndpoints();
 app.MapExerciseEndpoints();
+app.MapWorkoutTemplateEndpoints();
+app.MapExerciseTemplateEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

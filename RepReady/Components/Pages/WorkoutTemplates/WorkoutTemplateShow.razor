@@ -1,0 +1,85 @@
+@page "/workout-template/{id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpFactory
+@inject ILogger<WorkoutTemplates> Logger
+@inject RepReady.Services.WorkoutTemplateSelectionState SelectionState
+
+<PageTitle>Workout Templates</PageTitle>
+
+@if (_isLoading)
+{
+    <LoadingSpinner CenterOnPage />
+}
+else if (_exercises == null || !_exercises.Any())
+{
+    <HeaderRowWithButton HeaderText="Workout Template" Route="workout-templates"/>
+    <p>No exercises found!</p> 
+}
+else
+{
+    @if (SelectionState.Selected?.Id == Id)
+    {
+        <div class="card bg-shadow-gray mb-4">
+            <div class="card-body">
+                <h5 class="card-title">@SelectionState.Selected.Name</h5>
+                <p class="card-text">@SelectionState.Selected.Description</p>
+            </div>
+        </div>
+    }
+
+    @foreach (var exercise in _exercises)
+    {
+        <ExerciseCard
+            ExerciseTemplate="@exercise"/>
+    }
+}
+<div>
+    <button @onclick="AddExercises" type="button" class="btn btn-primary">Add Exercises</button>
+    <button @onclick="BackButton" type="button" class="btn btn-primary">Back</button>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private IEnumerable<ExerciseTemplateDto>? _exercises;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTemplate();
+    }
+
+    private async Task LoadTemplate()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.GetAsync($"/v1/exercise_templates/getExerciseTemplatesByWorkoutTemplateId/{Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                _exercises = await response.Content.ReadFromJsonAsync<IEnumerable<ExerciseTemplateDto>>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading workout template");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    
+    private void AddExercises()
+    {
+        Navigation.NavigateTo($"/workout-templates/{Id}/add-exercises");
+    }
+
+    private void BackButton()
+    {
+        Navigation.NavigateTo(("/workout-templates"), true);
+    }
+}

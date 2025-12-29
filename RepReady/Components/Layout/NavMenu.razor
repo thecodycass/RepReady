@@ -1,4 +1,4 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar bg-shadow-gray">
     <div class="container-fluid">
         <a class="navbar-brand" href="">RepReady</a>
     </div>
@@ -6,7 +6,7 @@
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable bg-shadow-gray" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -16,13 +16,19 @@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="user">
-                <span class="bi bi-" aria-hidden="true"></span> User
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> User
             </NavLink>
         </div>
         
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="exercise">
-                <span class="bi bi-" aria-hidden="true"></span> Exercises
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Exercises
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="workout-templates">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Workout Templates
             </NavLink>
         </div>
     </nav>

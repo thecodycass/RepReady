@@ -58,3 +58,13 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Custom */
+.bg-shadow-gray {
+    background-color: #24282E !important;
+}
+
+.badge-bg-purple {
+    color: #fff;
+    background-color: #6e2cf2 !important;
+}

@@ -1,0 +1,360 @@
+@page "/workout-templates/{id:int}/add-exercises"
+@using RepReady.Models.ExerciseTemplate
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+@inject ILogger<WorkoutTemplateAddExercises> Logger
+
+<PageTitle>Add Exercises to Template</PageTitle>
+
+@if (_template != null)
+{
+    <div class="card mb-4 bg-shadow-gray">
+        <div class="card-body">
+            <h5 class="card-title">@_template.Name</h5>
+            <p class="card-text">@_template.Description</p>
+        </div>
+        <button
+            class="btn btn-sm position-absolute top-0 end-0 m-2"
+            @onclick="() => EditWorkoutTemplate(Id)"
+            style="background: none; border: none; font-size: 1.2em; line-height: 1;"
+            title="Edit exercise">
+            ⋯
+        </button>
+    </div>
+}
+
+@if (_isLoading)
+{
+    <LoadingSpinner />
+}
+else if (_exercises != null && _exercises.Any())
+{
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @_errorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @_successMessage
+        </div>
+    }
+
+    <FindExercises Exercises="@_exercises"
+                   SelectedExercises="@_selectedExercises"
+                   SearchTerm="@_searchTerm"
+                   SearchTermChanged="@(v => _searchTerm = v)"
+                   OnSelectionChanged="@((args) => OnExerciseSelectionChanged(args.exerciseId, args.e))" />
+    
+    <hr />
+    <br />
+    
+    <SelectedExercises Exercises="@_exercises"
+                      SelectedExerciseStates="@_selectedExercises"
+                      ExerciseConfigs="@_exerciseConfigs"
+                      IsSubmitting="@_isSubmitting"
+                      ErrorMessage="@_errorMessage"
+                      SuccessMessage="@_successMessage"
+                      OnSortOrderChanged="@((args) => OnSortOrderChanged(args.exerciseId, args.e))"
+                      OnRemoveExercise="RemoveExercise"
+                      OnSubmit="HandleSubmit"
+                      OnCancel="Cancel" />
+}
+else
+{
+    <p>No exercises available.</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private WorkoutTemplateDto? _template;
+    private IEnumerable<ExerciseDto>? _exercises;
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+    private string _searchTerm = string.Empty;
+    private int _sortOrderCounter = 1;
+
+    private Dictionary<int, bool> _selectedExercises = new();
+    private Dictionary<int, ExerciseConfig> _exerciseConfigs = new();
+    private Dictionary<int, ExerciseTemplateDto> _existingExerciseTemplatesByExerciseId = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTemplate();
+        await LoadExercises();
+        await LoadExistingExerciseTemplates();
+    }
+
+    private async Task LoadTemplate()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.GetAsync($"/v1/workout_templates/{Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                _template = await response.Content.ReadFromJsonAsync<WorkoutTemplateDto>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading workout template");
+        }
+    }
+
+    private async Task LoadExercises()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            _exercises = await http.GetFromJsonAsync<IEnumerable<ExerciseDto>>("/v1/exercises/");
+
+            // Initialize selection and config dictionaries
+            if (_exercises != null)
+            {
+                foreach (var exercise in _exercises)
+                {
+                    _selectedExercises[exercise.Id] = false;
+                    _exerciseConfigs[exercise.Id] = new ExerciseConfig();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading exercises");
+        }
+    }
+
+    private async Task LoadExistingExerciseTemplates()
+    {
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var existing = await http.GetFromJsonAsync<IEnumerable<ExerciseTemplateDto>>(
+                $"/v1/exercise_templates/getExerciseTemplatesByWorkoutTemplateId/{Id}");
+
+            _existingExerciseTemplatesByExerciseId = existing?
+                .GroupBy(t => t.ExerciseId)
+                .ToDictionary(g => g.Key, g => g.First())
+                ?? new Dictionary<int, ExerciseTemplateDto>();
+
+            // Hydrate selection + config from saved templates
+            foreach (var kv in _existingExerciseTemplatesByExerciseId)
+            {
+                var exerciseId = kv.Key;
+                var t = kv.Value;
+
+                // Only hydrate if we know about the exercise in the master list
+                if (_selectedExercises.ContainsKey(exerciseId))
+                {
+                    _selectedExercises[exerciseId] = true;
+                    _exerciseConfigs[exerciseId] = new ExerciseConfig
+                    {
+                        SortOrder = t.SortOrder,
+                        DefaultSets = t.DefaultSets,
+                        DefaultReps = t.DefaultReps,
+                        Weight = t.Weight,
+                    };
+                }
+            }
+
+            NormalizeSortOrders();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading existing exercise templates");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnExerciseSelectionChanged(int exerciseId, ChangeEventArgs e)
+    {
+        var isChecked = e.Value is bool b && b;
+
+        _selectedExercises[exerciseId] = isChecked;
+
+        if (isChecked)
+        {
+            // Put newly-selected exercises at the end by default; we'll normalize after.
+            _exerciseConfigs[exerciseId].SortOrder = _sortOrderCounter;
+        }
+
+        NormalizeSortOrders();
+    }
+
+    private void OnSortOrderChanged(int exerciseId, ChangeEventArgs e)
+    {
+        // For <input type="number">, Blazor commonly gives us a string.
+        var text = e.Value?.ToString();
+
+        if (!int.TryParse(text, out var newSortOrder))
+        {
+            return;
+        }
+
+        if (newSortOrder < 1)
+        {
+            newSortOrder = 1;
+        }
+
+        _exerciseConfigs[exerciseId].SortOrder = newSortOrder;
+
+        NormalizeSortOrders();
+    }
+
+    private void NormalizeSortOrders()
+    {
+        // Keep SortOrder contiguous (1..N) for the currently selected exercises.
+        // We preserve the user's current intent by ordering by existing SortOrder first.
+        var orderedSelectedIds = _selectedExercises
+            .Where(kv => kv.Value)
+            .Select(kv => kv.Key)
+            .OrderBy(id => _exerciseConfigs[id].SortOrder)
+            .ThenBy(id => id)
+            .ToList();
+
+        for (var i = 0; i < orderedSelectedIds.Count; i++)
+        {
+            var id = orderedSelectedIds[i];
+            _exerciseConfigs[id].SortOrder = i + 1;
+        }
+
+        _sortOrderCounter = orderedSelectedIds.Count + 1;
+    }
+
+    private void RemoveExercise(int exerciseId)
+    {
+        // Unselect so FindExercises checkbox updates, and reset config fields back to defaults.
+        _selectedExercises[exerciseId] = false;
+        _exerciseConfigs[exerciseId] = new ExerciseConfig();
+
+        NormalizeSortOrders();
+    }
+
+    private async Task HandleSubmit()
+    {
+        _isSubmitting = true;
+        _errorMessage = string.Empty;
+        _successMessage = string.Empty;
+
+        try
+        {
+            using var http = HttpFactory.CreateClient("ApiClient");
+
+            var selectedExerciseIds = _selectedExercises
+                .Where(kv => kv.Value)
+                .Select(kv => kv.Key)
+                .OrderBy(id => _exerciseConfigs[id].SortOrder)
+                .ThenBy(id => id)
+                .ToList();
+
+            if (!selectedExerciseIds.Any())
+            {
+                _errorMessage = "Please select at least one exercise.";
+                return;
+            }
+
+            // 1) Delete templates that exist in DB but are now unselected
+            var toDelete = _existingExerciseTemplatesByExerciseId
+                .Where(kv => !_selectedExercises.TryGetValue(kv.Key, out var isSelected) || !isSelected)
+                .Select(kv => kv.Value)
+                .ToList();
+
+            foreach (var existing in toDelete)
+            {
+                var deleteResponse = await http.DeleteAsync($"/v1/exercise_templates/{existing.Id}");
+                if (!deleteResponse.IsSuccessStatusCode)
+                {
+                    _errorMessage = $"Failed to remove exercise {existing.ExerciseId}. Status: {deleteResponse.StatusCode}";
+                    return;
+                }
+            }
+
+            // 2) Create/update selected
+            foreach (var exerciseId in selectedExerciseIds)
+            {
+                var config = _exerciseConfigs[exerciseId];
+
+                // Existing -> update
+                if (_existingExerciseTemplatesByExerciseId.TryGetValue(exerciseId, out var existing))
+                {
+                    var updateModel = new ExerciseTemplateFormModel
+                    {
+                        SortOrder = config.SortOrder,
+                        DefaultSets = config.DefaultSets,
+                        DefaultReps = config.DefaultReps,
+                        Weight = config.Weight,
+                        ExerciseId = exerciseId,
+                        WorkoutTemplateId = Id,
+                        CreatedAt = existing.CreatedAt,
+                        UpdatedAt = DateTime.UtcNow,
+                    };
+
+                    var putResponse = await http.PutAsJsonAsync($"/v1/exercise_templates/{existing.Id}", updateModel);
+                    if (!putResponse.IsSuccessStatusCode)
+                    {
+                        _errorMessage = $"Failed to update exercise {exerciseId}. Status: {putResponse.StatusCode}";
+                        return;
+                    }
+
+                    continue;
+                }
+
+                // New -> create
+                var createModel = new ExerciseTemplateFormModel
+                {
+                    SortOrder = config.SortOrder,
+                    DefaultSets = config.DefaultSets,
+                    DefaultReps = config.DefaultReps,
+                    Weight = config.Weight,
+                    ExerciseId = exerciseId,
+                    WorkoutTemplateId = Id,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                var postResponse = await http.PostAsJsonAsync("/v1/exercise_templates/", createModel);
+                if (!postResponse.IsSuccessStatusCode)
+                {
+                    _errorMessage = $"Failed to add exercise {exerciseId}. Status: {postResponse.StatusCode}";
+                    return;
+                }
+            }
+
+            // Refresh mapping so if the user returns to this page later, it hydrates correctly.
+            await LoadExistingExerciseTemplates();
+            _successMessage = "Exercises saved successfully!";
+            Navigation.NavigateTo("/workout-templates");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error saving exercises: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/workout-templates");
+    }
+
+    private void EditWorkoutTemplate(int id)
+    {
+        Navigation.NavigateTo($"/workout-templates/edit/{id}");
+    }
+}

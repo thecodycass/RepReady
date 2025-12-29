@@ -1,0 +1,76 @@
+@page "/workout-templates/new"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpFactory
+@inject NavigationManager Navigation
+@inject ILogger<WorkoutTemplateNew> Logger
+
+<PageTitle>Create New Workout Template</PageTitle>
+<h1>Create New Workout Template</h1>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @_errorMessage
+    </div>
+}
+
+<WorkoutTemplateForm Model="@_newTemplate" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel"/>
+
+@code {
+    private WorkoutTemplateFormModel _newTemplate = new();
+    private bool _isSubmitting = false;
+    private string _errorMessage = string.Empty;
+    private const int UserId = 1; // TODO: Change once I get a signin configured
+
+    private async Task HandleSubmit()
+    {
+        _isSubmitting = true;
+        _errorMessage = string.Empty;
+
+        try
+        {
+            var template = new
+            {
+                name = _newTemplate.Name,
+                description = _newTemplate.Description,
+                userId = UserId,
+                createdAt = DateTime.UtcNow,
+                updatedAt = DateTime.UtcNow,
+            };
+
+            using var http = HttpFactory.CreateClient("ApiClient");
+            var response = await http.PostAsJsonAsync("/v1/workout_templates/", template);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Get the created template to navigate to add exercises
+                var createdTemplate = await response.Content.ReadFromJsonAsync<WorkoutTemplateDto>();
+                if (createdTemplate != null)
+                {
+                    Navigation.NavigateTo($"/workout-templates/{createdTemplate.Id}/add-exercises");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/workout-templates");
+                }
+            }
+            else
+            {
+                _errorMessage = $"Failed to create workout template. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error creating workout template: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/workout-templates");
+    }
+}

@@ -21,6 +21,12 @@
                 <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
                 <ValidationMessage For="@(() => Model.Email)" />
             </div>
+            
+            <div class="mb-3">
+                <label for="bodyWeight" class="form-label">Body Weight</label>
+                <InputNumber id="bodyWeight" type="number" class="form-control" @bind-Value="Model.BodyWeight" />
+                <ValidationMessage For="@(() => Model.BodyWeight)" />
+            </div>
 
             <div class="mb-3">
                 <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">

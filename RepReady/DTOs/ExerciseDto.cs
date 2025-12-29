@@ -1,4 +1,4 @@
-using RepReady.Models;
+using RepReady.Models.Exercise;
 namespace RepReady.DTOs;
 /**
  * Data Transfer Object for Exercise entity
@@ -7,15 +7,10 @@ namespace RepReady.DTOs;
 public class ExerciseDto
 {
     public int Id { get; set; }
-    
     public string Name { get; set; } = string.Empty;
-    
     public string Category { get; set; } = string.Empty;
-    
     public string BodyRegion { get; set; } = string.Empty;
-    
     public DateTime CreatedAt { get; set; }
-    
     public DateTime UpdatedAt { get; set; }
 }
 

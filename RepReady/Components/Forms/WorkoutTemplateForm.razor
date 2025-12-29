@@ -11,25 +11,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
-                <InputSelect id="category" class="form-control form-select" @bind-Value="Model.Category">
-                    @foreach (var category in @Globals.ExerciseCategories)
-                    {
-                        <option value="@category">@category.ToUpper()</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => Model.Category)" />
-            </div>
-
-            <div class="mb-3">
-                <label for="body_region" class="form-label">Body Region</label>
-                <InputSelect id="body_region" class="form-control form-select" @bind-Value="Model.BodyRegion">
-                    @foreach (var region in Globals.BodyRegions)
-                    {
-                        <option value="@region">@region.ToUpper()</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => Model.BodyRegion)" />
+                <label for="description" class="form-label">Description</label>
+                <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" rows="3" />
+                <ValidationMessage For="@(() => Model.Description)" />
             </div>
 
             <div class="mb-3">
@@ -44,7 +28,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public ExerciseFormModel Model { get; set; } = null!;
+    public WorkoutTemplateFormModel Model { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public EventCallback OnValidSubmit { get; set; }
