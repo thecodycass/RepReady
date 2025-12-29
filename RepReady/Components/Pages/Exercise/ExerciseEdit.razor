@@ -19,7 +19,7 @@ else if (_errorMessage != null)
 }
 else if (_exerciseModel != null)
 {
-    <ExerciseForm Model="_exerciseModel" OnValidSubmit="HandleSubmit" IsSubmitting="_isSubmitting" OnCancel="Cancel" />
+    <ExerciseForm Model="_exerciseModel" OnInput="HandleInputChange" IsDisabled="_isSaveDisabled" OnValidSubmit="HandleSubmit" IsSubmitting="_isSubmitting" />
 }
 else
 {
@@ -33,6 +33,7 @@ else
     private ExerciseFormModel? _exerciseModel;
     private bool _isLoading = true;
     private bool _isSubmitting;
+    private bool _isSaveDisabled = true;
     private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -69,6 +70,11 @@ else
         }
     }
 
+    private void HandleInputChange()
+    {
+        _isSaveDisabled = false;
+    }
+
     private async Task HandleSubmit()
     {
         if (_exerciseModel == null) return;
@@ -84,7 +90,7 @@ else
                 category = _exerciseModel.Category,
                 bodyRegion = _exerciseModel.BodyRegion,
                 createdAt = _exerciseModel.CreatedAt,
-                updatedAt = _exerciseModel.UpdatedAt
+                updatedAt = DateTime.UtcNow
             };
 
             using var http = HttpFactory.CreateClient("ApiClient");
@@ -108,15 +114,7 @@ else
         finally
         {
             _isSubmitting = false;
+            _isSaveDisabled = true;
         }
-    }
-
-    private void Cancel()
-    {
-        // Navigate back to exercises main page if we don't know the region
-        if (_exerciseModel == null) Navigation.NavigateTo("/exercise");
-        
-        // Navigate back to the region page for this exercise
-        Navigation.NavigateTo($"/exercises/{_exerciseModel?.BodyRegion}");
     }
 }

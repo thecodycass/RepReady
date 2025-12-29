@@ -14,7 +14,7 @@
     </div>
 }
 
-<ExerciseForm Model="@_newExercise" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" OnCancel="Cancel"/>
+<ExerciseForm Model="@_newExercise" IsDisabled="false" OnValidSubmit="HandleSubmit" IsSubmitting="@_isSubmitting" />
 
 @code {
     [SupplyParameterFromQuery(Name = "bodyRegion")]
@@ -75,8 +75,4 @@
         }
     }
 
-    private void Cancel()
-    {
-        Navigation.NavigateTo("/exercise");
-    }
 }
