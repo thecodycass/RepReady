@@ -14,6 +14,9 @@ public class ExerciseTemplateFormModel
     
     public float Weight { get; set; }
     
+    [Required(ErrorMessage = "'Set Type' is required")]
+    public string SetType { get; set; }
+    
     [Required(ErrorMessage = "'Exercise Id' is required")]
     public int ExerciseId { get; set; }
     

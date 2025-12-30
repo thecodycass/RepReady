@@ -6,21 +6,21 @@
 
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
-                <InputText id="name" class="form-control" @bind-Value="Model.Name" />
+                <InputText id="name" class="form-control form-control-sm" @bind-Value="Model.Name" />
                 <ValidationMessage For="@(() => Model.Name)" />
             </div>
 
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" rows="3" />
+                <InputTextArea id="description" class="form-control form-control-sm" @bind-Value="Model.Description" rows="3" />
                 <ValidationMessage For="@(() => Model.Description)" />
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                <button type="submit" class="btn btn-purple" disabled="@IsSubmitting">
                     <Saving IsSaving="@IsSubmitting"></Saving>
                 </button>
-                <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
+                <button type="button" class="btn ms-2" @onclick="OnCancel">Cancel</button>
             </div>
         </EditForm>
     </div>

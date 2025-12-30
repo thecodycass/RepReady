@@ -6,12 +6,6 @@ a, .btn-link {
     color: #006bb7;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
@@ -67,4 +61,21 @@ h1:focus {
 .badge-bg-purple {
     color: #fff;
     background-color: #6e2cf2 !important;
+}
+
+.btn-purple {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #6e2cf2;
+    --bs-btn-border-color: #BD9FF9;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6119F0;
+    --bs-btn-hover-border-color: #7B3EF4;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #7B3EF4;
+    --bs-btn-active-border-color: #7B3EF4;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #480BC1;
+    --bs-btn-disabled-border-color: #7B3EF4;
 }

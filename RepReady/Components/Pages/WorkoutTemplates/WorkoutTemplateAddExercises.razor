@@ -57,8 +57,6 @@ else if (_exercises != null && _exercises.Any())
                       SelectedExerciseStates="@_selectedExercises"
                       ExerciseConfigs="@_exerciseConfigs"
                       IsSubmitting="@_isSubmitting"
-                      ErrorMessage="@_errorMessage"
-                      SuccessMessage="@_successMessage"
                       OnSortOrderChanged="@((args) => OnSortOrderChanged(args.exerciseId, args.e))"
                       OnRemoveExercise="RemoveExercise"
                       OnSubmit="HandleSubmit"
@@ -163,6 +161,7 @@ else
                         DefaultSets = t.DefaultSets,
                         DefaultReps = t.DefaultReps,
                         Weight = t.Weight,
+                        SetType = t.SetType,
                     };
                 }
             }
@@ -296,6 +295,7 @@ else
                         DefaultSets = config.DefaultSets,
                         DefaultReps = config.DefaultReps,
                         Weight = config.Weight,
+                        SetType = config.SetType,
                         ExerciseId = exerciseId,
                         WorkoutTemplateId = Id,
                         CreatedAt = existing.CreatedAt,
@@ -319,6 +319,7 @@ else
                     DefaultSets = config.DefaultSets,
                     DefaultReps = config.DefaultReps,
                     Weight = config.Weight,
+                    SetType = config.SetType,
                     ExerciseId = exerciseId,
                     WorkoutTemplateId = Id,
                     CreatedAt = DateTime.UtcNow,

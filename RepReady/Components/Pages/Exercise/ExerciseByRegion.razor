@@ -24,8 +24,9 @@ else
                 <div class="card-body">
                     <h5 class="card-title">@exercise.Name</h5>
                     <p class="card-text">
-                        <strong>Category:</strong> @exercise.Category<br/>
-                        <strong>Body Region:</strong> @exercise.BodyRegion
+                        <strong>Category:</strong> <ExerciseBadge Value="@exercise.Category" />
+                        <br/>
+                        <strong>Body Region:</strong> <ExerciseBadge Value="@exercise.BodyRegion" />
                     </p>
                 </div>
                 <button
@@ -40,7 +41,7 @@ else
     </div>
     <br/>
 }
-<button @onclick="AddExercises" type="button" class="btn btn-primary">Add Exercise</button>
+<button @onclick="AddExercises" type="button" class="btn btn-purple">Add Exercise</button>
 
 @code {
     [Parameter]

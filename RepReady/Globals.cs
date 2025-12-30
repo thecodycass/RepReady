@@ -35,10 +35,10 @@ public static class Globals
 
     public static readonly List<string> SetTypes =
     [
-        "Regular",
-        "Myorep Match",
-        "Pyramid Up",
-        "Pyramid Down",
-        "Super Set"
+        "regular",
+        "myorep_match",
+        "pyramid_up",
+        "pyramid_down",
+        "superset"
     ];
 }

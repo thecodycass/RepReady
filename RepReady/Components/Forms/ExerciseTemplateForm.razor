@@ -7,27 +7,27 @@
 
             <div class="mb-3">
                 <label for="sortOrder" class="form-label">Sort Order</label>
-                <InputNumber id="sortOrder" class="form-control" @bind-Value="Model.SortOrder" />
+                <InputNumber id="sortOrder" class="form-control form-control-sm" @bind-Value="Model.SortOrder" />
                 <ValidationMessage For="@(() => Model.SortOrder)" />
             </div>
 
             <div class="mb-3">
                 <label for="defaultSets" class="form-label">Default Sets</label>
-                <InputNumber id="defaultSets" class="form-control" @bind-Value="Model.DefaultSets" />
+                <InputNumber id="defaultSets" class="form-control form-control-sm" @bind-Value="Model.DefaultSets" />
                 <ValidationMessage For="@(() => Model.DefaultSets)" />
             </div>
 
             <div class="mb-3">
                 <label for="defaultReps" class="form-label">Default Reps</label>
-                <InputNumber id="defaultReps" class="form-control" @bind-Value="Model.DefaultReps" />
+                <InputNumber id="defaultReps" class="form-control form-control-sm" @bind-Value="Model.DefaultReps" />
                 <ValidationMessage For="@(() => Model.DefaultReps)" />
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                <button type="submit" class="btn btn-purple" disabled="@IsSubmitting">
                     <Saving IsSaving="@IsSubmitting"></Saving>
                 </button>
-                <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Cancel</button>
+                <button type="button" class="btn ms-2" @onclick="OnCancel">Cancel</button>
             </div>
         </EditForm>
     </div>

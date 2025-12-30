@@ -12,7 +12,7 @@
                         <label for="name" class="col-form-label">Name</label>
                     </div>
                     <div class="col-sm-8">
-                        <InputText id="name" class="form-control" @bind-Value="Model.Name" @oninput="OnInput" />
+                        <InputText id="name" class="form-control form-control-sm" @bind-Value="Model.Name" @oninput="OnInput" />
                         <ValidationMessage For="@(() => Model.Name)" />
                     </div>
                 </div>
@@ -22,7 +22,7 @@
                         <label for="category" class="col-form-label">Category</label>
                     </div>
                     <div class="col-sm-8">
-                        <InputSelect id="category" class="form-control form-select" @bind-Value="Model.Category" @oninput="OnInput">
+                        <InputSelect id="category" class="form-select form-select-sm" @bind-Value="Model.Category" @oninput="OnInput">
                             @foreach (var category in Globals.ExerciseCategories)
                             {
                                 <option value="@category">@category.ToUpper()</option>
@@ -37,7 +37,7 @@
                         <label for="body_region" class="col-form-label">Body Region</label>
                     </div>
                     <div class="col-sm-8">
-                        <InputSelect id="body_region" class="form-control form-select" @bind-Value="Model.BodyRegion" @oninput="OnInput">
+                        <InputSelect id="body_region" class="form-select form-select-sm" @bind-Value="Model.BodyRegion" @oninput="OnInput">
                             @foreach (var region in Globals.BodyRegions)
                             {
                                 <option value="@region">@region.ToUpper()</option>
@@ -52,11 +52,11 @@
 
     <div class="card-footer bg-transparent d-flex justify-content-end p-3 p-md-4">
         <div>
-            <button type="submit" class="btn btn-primary" disabled="@(IsDisabled)" form="exerciseForm">
+            <button type="submit" class="btn btn-purple" disabled="@(IsDisabled)" form="exerciseForm">
                 <Saving IsSaving="@IsSubmitting"></Saving>
             </button>
-            <button type="button" class="btn btn-secondary" @onclick="NavigateBack">
-                @BackButtonText
+            <button type="button" class="btn" @onclick="NavigateBack">
+                Back
             </button>
         </div>
     </div>
@@ -81,10 +81,6 @@
     // Optional context when the page is reached from /exercises/{region}
     [SupplyParameterFromQuery(Name = "bodyRegion")]
     public string? BodyRegion { get; set; }
-
-    private string BackButtonText => !string.IsNullOrWhiteSpace(BodyRegion)
-        ? $"Back to {Model.BodyRegion}"
-        : "Back";
 
     private void NavigateBack()
     {

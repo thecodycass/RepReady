@@ -21,6 +21,9 @@ public class ExerciseTemplate : BaseModel
     
     [Column("weight")]
     public float Weight { get; set; }
+    
+    [Column("set_type")]
+    public string SetType { get; set; }
 
     [Column("workout_template_id")]
     public int WorkoutTemplateId { get; set; }

@@ -17,6 +17,8 @@ public class ExerciseTemplateDto
     
     public float Weight { get; set; }
     
+    public string SetType {  get; set; }
+    
     public int WorkoutTemplateId { get; set; }
     
     public int ExerciseId { get; set; }
@@ -44,6 +46,7 @@ public static class ExerciseTemplateExtensions
             DefaultReps = template.DefaultReps,
             DefaultSets = template.DefaultSets,
             Weight = template.Weight,
+            SetType = template.SetType,
             WorkoutTemplateId = template.WorkoutTemplateId,
             ExerciseId = template.ExerciseId,
             CreatedAt = template.CreatedAt,
@@ -61,6 +64,7 @@ public static class ExerciseTemplateExtensions
             DefaultReps = template.DefaultReps,
             DefaultSets = template.DefaultSets,
             Weight = template.Weight,
+            SetType = template.SetType,
             WorkoutTemplateId = template.WorkoutTemplateId,
             ExerciseId = template.ExerciseId,
             CreatedAt = template.CreatedAt,

@@ -6,17 +6,22 @@
                     <h6 class="card-title">@ExerciseTemplate?.Exercise?.Name</h6>
                     <ExerciseBadge Value="@ExerciseTemplate?.Exercise?.BodyRegion"/>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Sets</label>
-                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.DefaultSets">
+                    <input disabled readonly type="text" class="form-control form-control-sm" placeholder="@ExerciseTemplate?.DefaultSets">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Reps</label>
-                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.DefaultReps">
+                    <input disabled readonly type="text" class="form-control form-control-sm" placeholder="@ExerciseTemplate?.DefaultReps">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Starting Weight</label>
-                    <input readonly type="text" class="form-control" placeholder="@ExerciseTemplate?.Weight">
+                    <input disabled readonly type="text" class="form-control form-control-sm" placeholder="@ExerciseTemplate?.Weight">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Set Type</label>
+                    <input disabled readonly type="text" class="form-control form-control-sm" placeholder="@ExerciseTemplate?.SetType.ToUpper()">
                 </div>
             </form>
         </div>
